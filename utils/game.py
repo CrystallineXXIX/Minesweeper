@@ -13,3 +13,5 @@ class Game:
     def set(n, minecount):
         Game.n = n
         Game.minecount = minecount
+
+            

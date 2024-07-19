@@ -2,13 +2,13 @@ import pygame as pg
 
 from .colors import Colors
 from .game import Game 
-
+from .images import create_flag, create_mine
 pg.font.init()
 
 
 class Cell:
-    flag = pg.image.load('flag.png')
-    mine = pg.image.load('mine.png')
+    flag = create_flag(100) 
+    mine = create_mine(100)
     font = pg.font.Font(None, 32)
 
     width = 100
@@ -18,8 +18,8 @@ class Cell:
     @staticmethod
     def set_width(width):
         Cell.width = width 
-        Cell.flag = pg.transform.scale(Cell.flag, (width * 0.64, width * 0.64))
-        Cell.mine = pg.transform.scale(Cell.mine, (width * 0.64, width * 0.64))
+        Cell.flag = create_flag(width * 0.64)
+        Cell.mine = create_mine(width * 0.64)
         Cell.font = pg.font.Font('bungee.ttf', int(width * 0.64))
 
 
@@ -33,7 +33,7 @@ class Cell:
         self.iscovered = True
         self.isflagged = False
 
-        self.neighbours = []
+        self.neighbors = []
         self.minecount = 0
 
         self.text = None 
@@ -51,7 +51,7 @@ class Cell:
 
         Cell.cells.append(self)
 
-    def draw(self, screen):
+    def draw(self, screen, pos = (-10, -10)):
         if self.iscovered:
             pg.draw.rect(screen, self.color, self.rect)
             if self.isflagged:
@@ -63,15 +63,18 @@ class Cell:
             else:
                 screen.blit(self.text, self.text_rect)
 
+        if self.rect.collidepoint(pos):
+            pg.draw.rect(screen, Colors.LOST, self.rect, int(Cell.width * 0.2))
+
     def update(self):
         if not self.ismine:
             open = False
-            for cell in self.neighbours:
+            for cell in self.neighbors:
                 if not cell.iscovered and cell.minecount == 0:
                     open = True
                     break
 
-            if open:
+            if open and not self.isflagged:
                 self.iscovered = False
 
         if Game.gameover:
@@ -81,7 +84,7 @@ class Cell:
 
     def setup(self, mines):
 
-        self.neighbours = []
+        self.neighbors = []
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
                 if dx == 0 and dy == 0:
@@ -93,18 +96,18 @@ class Cell:
                 if x < 0 or x >= Game.n or y < 0 or y >= Game.n:
                     continue
 
-                self.neighbours.append(Game.grid[x][y])
+                self.neighbors.append(Game.grid[x][y])
 
         if self.coords in mines:
             self.ismine = True
             self.minecount = -1
 
         else:
-            for neighbour in self.neighbours:
-                if neighbour.coords in mines:
+            for neighbor in self.neighbors:
+                if neighbor.coords in mines:
                     self.minecount += 1
 
-        self.text = self.font.render(str(self.minecount) if self.minecount > 0 else '', True, Colors.TEXT)
+        self.text = self.font.render(str(self.minecount) if self.minecount > 0 else '', True, Colors.TEXT[self.minecount])
         self.text_rect = self.text.get_rect(center=self.rect.center)
 
         

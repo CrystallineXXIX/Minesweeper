@@ -1,0 +1,10 @@
+{
+    "title": "Minesweeper",
+    "description": [
+          "This is a simple implementation of the classic Minesweeper game using the Pygame library.",
+          "The game has three difficulty levels: easy, medium, and hard.",
+          "The player can left-click to reveal a cell, right-click to flag a cell as a mine,",
+          "and middle-click to reveal all adjacent cells if the cell has the correct number of",
+          "flags around it."
+    ]
+}
